@@ -1,4 +1,5 @@
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <string>
 #include <string_view>
@@ -70,7 +71,7 @@ namespace cryptopals
 	/**
 	 * Returns the ASCII string that is hex encoded in the given string view.
 	 */
-	std::string hex_to_str(std::string_view hex_str)
+	std::string hex_to_ascii(std::string_view hex_str)
 	{
 		std::string ascii_str;
 		ascii_str.reserve(hex_str.size() / 2);
@@ -82,5 +83,49 @@ namespace cryptopals
 		}
 
 		return ascii_str;
+	}
+
+	/**
+	 * Returns the hex string that is ASCII encoded in the given string view.
+	 */
+	std::string ascii_to_hex(std::string_view ascii_str)
+	{
+		std::string hex_str;
+		hex_str.reserve(ascii_str.size() * 2);
+
+		// Turns 4 bits received as an int into the corresponding hex char
+		auto nibble_to_hex = [](const int& nibble)
+			{
+				if (nibble < 10)
+					return '0' + nibble;
+				else
+					return 'a' + (nibble - 10);
+			};
+
+		for(const char& c : ascii_str)
+		{
+			hex_str.append(1, nibble_to_hex((c & 0xF0) >> 4));
+			hex_str.append(1, nibble_to_hex( c & 0x0F));
+		}
+
+		return hex_str;
+	}
+
+	/**
+	 * Returns the fixed XOR of the two given strings.
+	 * 
+	 * The input strings must be of equal size, or an assert is triggered.
+	 */
+	std::string fixed_xor(std::string_view in1, std::string_view in2)
+	{
+		assert(in1.size() == in2.size());
+
+		std::string out;
+		out.reserve(in1.size());
+
+		for(size_t i = 0; i < in1.size(); i++)
+			out.append(1, in1[i] ^ in2[i]);
+
+		return out;
 	}
 }
